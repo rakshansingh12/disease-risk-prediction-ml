@@ -1,58 +1,82 @@
-# disease-risk-prediction-mlOverview
+disease-risk-prediction-ml
+# Overview
 
-This project implements an end-to-end bioinformatics and machine learning pipeline to predict disease status from gene expression data. Using publicly available datasets from the NCBI Gene Expression Omnibus (GEO), the project covers data preprocessing, feature selection, model training, evaluation, and biological interpretation of results.
+This project implements an end-to-end bioinformatics and machine learning pipeline to predict Alzheimer’s disease status from gene expression data.
 
-The goal is to classify biological samples as disease vs healthy control (or disease subtypes) based on their gene expression profiles.
+Using publicly available datasets from the NCBI Gene Expression Omnibus (GEO), the project covers data preprocessing, feature selection, model training, evaluation, biological interpretation of results, and deployment as a live web application.
+
+The goal is to classify biological brain tissue samples as Alzheimer’s disease vs healthy control based on their gene expression profiles.
 
 # Dataset
 
 Source: NCBI Gene Expression Omnibus (GEO)
-
-Dataset ID: GSEXXXXX
-
+Dataset ID: GSE5281
 Organism: Homo sapiens
+Platform: GPL570 (Affymetrix Human Genome U133 Plus 2.0 Array)
+Technology: Microarray (processed expression matrix)
 
-Technology: Microarray / RNA-Seq (processed expression matrix)
+# Samples
 
-Samples:
+Disease (Alzheimer’s): 74
 
-Disease: N
+Control: 87
 
-Control: M
+Total: 161 samples
 
-Features: ~20,000 genes
+Features
 
-The dataset consists of a gene expression matrix where rows represent genes and columns represent samples, along with metadata describing disease status.
+~54,000 microarray probe features
+
+Reduced to top 1000 genes after feature selection
+
+The dataset consists of a gene expression matrix where rows represent genes (probes) and columns represent samples, along with metadata describing disease status.
 
 # Project Pipeline
-
 Data Acquisition
 
 Downloaded processed gene expression matrix from GEO
 
 Extracted disease/control labels from sample metadata
 
-Preprocessing
+Parsed phenotype information directly from GEO annotation fields
 
-Log₂ transformation to stabilize variance
+# Preprocessing
 
-Feature scaling using standardization
+Log₂ transformation to stabilize variance:
 
-Basic handling of missing values
+log2(expression + 1)
 
-Feature Selection
+Feature scaling using standardization (StandardScaler)
+
+Conversion of matrix to Samples × Genes format
+
+No missing values detected in dataset
+
+# Feature Selection
+
+Due to the high dimensionality (p ≫ n), feature reduction was necessary.
 
 Variance-based gene filtering
 
-(Optional) Statistical testing to identify differentially expressed genes
+Selected top 1000 most variable genes
 
-Modeling
+Reduced dimensionality from ~54,000 → 1000 features
 
-Baseline model: Logistic Regression
+This step improves generalization and prevents overfitting.
 
-Advanced models: Random Forest / Support Vector Machine (optional)
+# Modeling
 
-Evaluation
+Models trained and compared:
+
+Logistic Regression (baseline, interpretable)
+
+Random Forest
+
+Support Vector Machine (SVM)
+
+# Evaluation
+
+Performance was evaluated using:
 
 Accuracy
 
@@ -60,11 +84,66 @@ ROC-AUC score
 
 Confusion matrix
 
+Stratified train-test split (80/20)
+
+# Results
+Model	Accuracy	ROC-AUC
+Logistic Regression	~93–94%	~0.99
+Random Forest	~91%	~0.98
+SVM	~93–94%	~0.98
+
+The logistic regression model was selected as the final model due to:
+
+Strong performance
+
+Stability in high-dimensional data
+
+Interpretability of gene coefficients
+
+Biological interpretability
+
 # Biological Interpretation
 
-Identification of top predictive genes
+Logistic regression coefficients were mapped from microarray probe IDs to gene symbols using the GPL570 platform annotation file.
 
-Literature-based validation of biologically relevant genes
+The most influential genes identified by the model include:
+
+FBXL5 – Linked to oxidative stress regulation
+
+FXR2 – Associated with RNA regulation in neurons
+
+FAM168B – Implicated in neuronal cellular processes
+
+KCNIP3 – Related to neuronal signaling mechanisms
+
+OGFRL1 – Potential role in neuronal pathways
+
+Several identified genes are associated with:
+
+Synaptic function
+
+Neuronal regulation
+
+RNA processing
+
+Cellular stress mechanisms
+
+These findings align with known molecular mechanisms involved in Alzheimer’s disease, supporting the biological relevance of the model.
+
+# Deployment
+
+The trained model was deployed as a Streamlit web application.
+
+Users can:
+
+Upload a CSV file containing gene expression values
+
+Receive predicted class (Alzheimer’s / Control)
+
+View predicted probability score
+
+# Live App:
+https://disease-risk-prediction-ml-ezzq7ikzgw7vcxtohviapp2.streamlit.app/
 
 # Methods
 Preprocessing
@@ -73,29 +152,24 @@ Gene expression values were log-transformed using log2(x + 1) to reduce skewness
 
 Feature Selection
 
-Due to the high dimensionality of gene expression data, low-information genes were removed using variance-based filtering and statistical significance testing between disease and control groups.
+Low-information genes were removed using variance-based filtering to address the high dimensionality of transcriptomic data.
 
 Machine Learning Models
 
-Logistic Regression: Used as a baseline model due to simplicity and interpretability
+Logistic Regression: Selected as final model due to interpretability and strong performance.
 
-Random Forest / SVM: Used to capture non-linear relationships in the data (optional)
+Random Forest / SVM: Used for comparison to evaluate potential non-linear modeling improvements.
 
-# Results
-Model	Accuracy	ROC-AUC
-Logistic Regression	XX%	XX
-Random Forest	XX%	XX
+# Key Skills Demonstrated
 
-The baseline logistic regression model achieved strong performance, indicating that a subset of genes contains meaningful predictive signal for disease status.
+Transcriptomic data preprocessing
 
-Biological Interpretation
+High-dimensional feature selection
 
-The most influential genes identified by the model include:
+Model comparison and evaluation
 
-GENE1 – Associated with disease-related cellular pathways
+Interpretable machine learning
 
-GENE2 – Implicated in immune response and inflammation
+Probe-to-gene annotation mapping
 
-GENE3 – Previously reported as a disease biomarker
-
-These findings are consistent with existing biological literature, supporting the relevance of the selected features.
+End-to-end ML deployment
